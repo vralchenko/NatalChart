@@ -109,8 +109,8 @@ function AppContent() {
           <Typography component="a" href="https://www.linkedin.com/in/vralchenko" target="_blank" rel="noopener" sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', textDecoration: 'none', '&:hover': { color: '#a855f7' } }}>
             LinkedIn
           </Typography>
-          <Typography component="a" href="https://github.com/vralchenko" target="_blank" rel="noopener" sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', textDecoration: 'none', '&:hover': { color: '#a855f7' } }}>
-            GitHub
+          <Typography component="a" href="https://vralchenko.pages.dev" target="_blank" rel="noopener" sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', textDecoration: 'none', '&:hover': { color: '#a855f7' } }}>
+            Portfolio
           </Typography>
         </Box>
       </Box>
