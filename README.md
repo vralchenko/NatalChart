@@ -11,11 +11,14 @@ Full-stack web application for building natal charts, synastry and transit analy
 - **Natal Chart** — planet positions, house cusps, aspect detection with configurable orbs, interactive SVG zodiac wheel
 - **Synastry** — compatibility analysis between two birth charts with inter-aspects
 - **Transits** — current planetary transits to natal chart
-- **Interpretations** — 366 text entries for planets in signs, houses, and aspects (EN + RU)
-- **Bilingual UI** — full Russian / English localization with language switcher
+- **Interpretations** — 366+ text entries for planets in signs, houses, and aspects (EN / RU, DE / UK fallback to EN)
+- **Numerology** — Life Path Number and Birthday Number with descriptions in all 4 languages
+- **Multilingual UI** — full English / Russian / German / Ukrainian localization with language switcher
+- **PDF Export** — server-side report generation via QuestPDF with full Unicode/Cyrillic support (selectable text, embedded fonts)
 - **Geocoding** — city search powered by Nominatim (OpenStreetMap), results in selected language
 - **Timezone handling** — automatic timezone detection from coordinates (GeoTimeZone + NodaTime)
 - **Birth time optional** — works without exact birth time (houses will be approximate)
+- **UX enhancements** — sign trait descriptions per planet, color-coded aspect rows with legend, tooltips, narrative chart summary
 
 ## Live Demo
 
@@ -31,9 +34,13 @@ Full-stack web application for building natal charts, synastry and transit analy
 NatalChart/
 ├── src/
 │   ├── NatalChart.Api/              # ASP.NET 8 Web API (controllers, DI, Swagger, CORS)
+│   │   ├── Controllers/             # Chart, Export, Synastry, Transit, Geocoding
+│   │   ├── Helpers/                 # BirthDataHelper (shared timezone logic)
+│   │   ├── Services/                # PdfExportService (QuestPDF)
+│   │   └── Fonts/                   # NotoSans TTF fonts for PDF
 │   ├── NatalChart.Core/             # Domain: models, enums, interfaces
 │   ├── NatalChart.Astrology/        # Computation engine (SwissEphNet)
-│   ├── NatalChart.Interpretation/   # Text interpretations (EN + RU JSON data)
+│   ├── NatalChart.Interpretation/   # Text interpretations + numerology (EN/RU/DE/UK JSON data)
 │   └── NatalChart.Infrastructure/   # External services (geocoding, timezone)
 ├── tests/
 │   ├── NatalChart.Astrology.Tests/  # 17 tests (ephemeris, houses, aspects, calculator)
@@ -42,8 +49,8 @@ NatalChart/
 │   └── src/
 │       ├── api/          # Axios API client
 │       ├── types/        # TypeScript types matching backend models
-│       ├── components/   # ChartWheel, PlanetTable, AspectGrid, BirthDataForm, etc.
-│       ├── context/      # Language context (RU/EN)
+│       ├── components/   # ChartWheel, PlanetTable, AspectGrid, NumerologyPanel, ExportPdfButton, etc.
+│       ├── context/      # Language context (EN/RU/DE/UK)
 │       ├── hooks/        # useChart, useSynastry, useTransits (React Query)
 │       └── pages/        # NatalChartPage, SynastryPage, TransitsPage
 ├── Dockerfile            # Multi-stage .NET 8 build
@@ -55,7 +62,9 @@ NatalChart/
 | Method | Route | Description |
 |--------|-------|-------------|
 | POST | `/api/chart/calculate` | Calculate natal chart (planets, houses, aspects) |
-| POST | `/api/chart/interpret?lang=en` | Get text interpretations (en/ru) |
+| POST | `/api/chart/interpret?lang=en` | Get text interpretations (en/ru/de/uk) |
+| POST | `/api/chart/numerology?lang=en` | Calculate numerology (Life Path + Birthday Number) |
+| POST | `/api/export/pdf` | Generate full PDF report in selected language |
 | POST | `/api/synastry/calculate` | Compare two charts with inter-aspects |
 | POST | `/api/transit/calculate` | Current transits to natal chart |
 | GET | `/api/geocoding/search?query=&lang=` | Location search (Nominatim proxy) |
@@ -115,6 +124,7 @@ wrangler pages deploy dist --project-name natalchart
 | Library | Purpose |
 |---------|---------|
 | **SwissEphNet** | C# port of Swiss Ephemeris — planet positions, house cusps |
+| **QuestPDF** | Server-side PDF generation with full Unicode support |
 | **GeoTimeZone** | Timezone lookup by geographic coordinates |
 | **NodaTime** | Accurate historical timezone / DST handling |
 | **Swashbuckle** | Swagger / OpenAPI documentation |

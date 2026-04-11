@@ -18,7 +18,7 @@ export const useLang = () => useContext(LangContext);
 export const LangProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [lang, setLang] = useState<Lang>(() => {
     const saved = localStorage.getItem('natalchart-lang');
-    return (saved === 'ru' || saved === 'en') ? saved : 'en';
+    return (saved === 'ru' || saved === 'en' || saved === 'de' || saved === 'uk') ? saved : 'en';
   });
 
   const handleSetLang = (newLang: Lang) => {

@@ -3,7 +3,8 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useLang } from '../context/LangContext';
-import { getPlanetName, getSignName, getAspectName } from '../i18n';
+import { getPlanetName, getSignName, getAspectName, signTraits, elementDescriptions } from '../i18n';
+import type { Lang } from '../i18n';
 import type { InterpretationResult, InterpretationEntry, NatalChartResult } from '../types/chart';
 
 interface Props {
@@ -21,6 +22,8 @@ const ELEMENTS_EN: Record<string, string[]> = {
 const ELEMENT_NAMES: Record<string, Record<string, string>> = {
   en: { Fire: 'Fire', Earth: 'Earth', Air: 'Air', Water: 'Water' },
   ru: { Fire: 'Огонь', Earth: 'Земля', Air: 'Воздух', Water: 'Вода' },
+  de: { Fire: 'Feuer', Earth: 'Erde', Air: 'Luft', Water: 'Wasser' },
+  uk: { Fire: 'Вогонь', Earth: 'Земля', Air: 'Повітря', Water: 'Вода' },
 };
 
 function getElement(sign: string): string {
@@ -30,7 +33,7 @@ function getElement(sign: string): string {
   return 'Unknown';
 }
 
-function translateTitle(entry: InterpretationEntry, lang: 'en' | 'ru', inSign: string, inHouse: string): string {
+function translateTitle(entry: InterpretationEntry, lang: Lang, inSign: string, inHouse: string): string {
   const parts = entry.title.split(' ');
 
   if (parts.length === 3 && parts[1] === 'in') {
@@ -63,17 +66,26 @@ export const InterpretationPanel: React.FC<Props> = ({ interpretations, chart })
     { title: t.aspects, entries: interpretations.aspects, color: '#22c55e' },
   ];
 
-  // Build summary from chart data in the correct language
   let summaryText = '';
   if (chart) {
     const sun = chart.planets.find(p => p.body === 'Sun');
     const moon = chart.planets.find(p => p.body === 'Moon');
     const asc = chart.planets.find(p => p.body === 'Ascendant');
 
-    const keyParts: string[] = [];
-    if (sun) keyParts.push(`${getPlanetName(lang, 'Sun')} ${t.inSign} ${getSignName(lang, sun.sign)} (${t.house} ${sun.house})`);
-    if (moon) keyParts.push(`${getPlanetName(lang, 'Moon')} ${t.inSign} ${getSignName(lang, moon.sign)} (${t.house} ${moon.house})`);
-    if (asc) keyParts.push(`${getPlanetName(lang, 'Ascendant')} ${t.inSign} ${getSignName(lang, asc.sign)}`);
+    const parts: string[] = [];
+
+    if (sun) {
+      const trait = signTraits[lang as Lang]?.[sun.sign] || '';
+      parts.push(`${t.sunIn} ${getSignName(lang, sun.sign)} (${t.house} ${sun.house}) — ${trait}`);
+    }
+    if (moon) {
+      const trait = signTraits[lang as Lang]?.[moon.sign] || '';
+      parts.push(`${t.moonIn} ${getSignName(lang, moon.sign)} (${t.house} ${moon.house}) — ${trait}`);
+    }
+    if (asc) {
+      const trait = signTraits[lang as Lang]?.[asc.sign] || '';
+      parts.push(`${t.ascendantIn} ${getSignName(lang, asc.sign)} — ${trait}`);
+    }
 
     // Count elements
     const elCount: Record<string, number> = { Fire: 0, Earth: 0, Air: 0, Water: 0 };
@@ -83,12 +95,13 @@ export const InterpretationPanel: React.FC<Props> = ({ interpretations, chart })
     }
     const dominant = Object.entries(elCount).sort((a, b) => b[1] - a[1])[0];
     const elName = ELEMENT_NAMES[lang]?.[dominant[0]] || dominant[0];
+    const elDesc = elementDescriptions[lang as Lang]?.[dominant[0]] || '';
 
-    if (lang === 'ru') {
-      summaryText = `Ключевые позиции: ${keyParts.join(', ')}. Доминирующая стихия: ${elName} (${dominant[1]} планет). Всего аспектов: ${chart.aspects.length}.`;
-    } else {
-      summaryText = `Key positions: ${keyParts.join(', ')}. Dominant element: ${elName} (${dominant[1]} planets). Total aspects: ${chart.aspects.length}.`;
-    }
+    // Count harmonious vs challenging aspects
+    const harmonious = chart.aspects.filter(a => a.type === 'Trine' || a.type === 'Sextile').length;
+    const challenging = chart.aspects.filter(a => a.type === 'Square' || a.type === 'Opposition').length;
+
+    summaryText = `${t.summaryIntro}\n\n${parts.join('. ')}.\n\n${t.dominantElement}: ${elName} (${dominant[1]}) — ${elDesc}.\n\n${t.aspectBalance}: ${t.harmonious.toLowerCase()} ${harmonious}, ${t.challenging.toLowerCase()} ${challenging}.`;
   }
 
   return (
@@ -105,9 +118,9 @@ export const InterpretationPanel: React.FC<Props> = ({ interpretations, chart })
           borderRadius: 3,
         }}>
           <Typography variant="subtitle1" sx={{ color: '#a855f7', fontWeight: 700, mb: 1 }}>
-            {lang === 'ru' ? 'Общий вывод' : 'Summary'}
+            {t.summary}
           </Typography>
-          <Typography sx={{ color: '#e2e8f0', lineHeight: 1.8 }}>{summaryText}</Typography>
+          <Typography sx={{ color: '#e2e8f0', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{summaryText}</Typography>
         </Paper>
       )}
 

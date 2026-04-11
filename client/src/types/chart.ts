@@ -133,3 +133,10 @@ export interface TransitRequest {
   natalData: BirthData;
   transitDate?: string;
 }
+
+export interface NumerologyResult {
+  lifePathNumber: number;
+  lifePathDescription: string;
+  birthdayNumber: number;
+  birthdayDescription: string;
+}

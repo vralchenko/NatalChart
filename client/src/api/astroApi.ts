@@ -8,6 +8,7 @@ import type {
   GeocodingResult,
   SynastryRequest,
   TransitRequest,
+  NumerologyResult,
 } from '../types/chart';
 
 const api = axios.create({
@@ -29,4 +30,10 @@ export const astroApi = {
 
   searchLocation: (query: string, lang: string = 'en') =>
     api.get<GeocodingResult[]>('/geocoding/search', { params: { query, lang } }).then(r => r.data),
+
+  calculateNumerology: (birthDate: string, lang: string = 'en') =>
+    api.post<NumerologyResult>('/chart/numerology', { birthDate }, { params: { lang } }).then(r => r.data),
+
+  exportPdf: (birthData: BirthData, lang: string, locationName: string) =>
+    api.post('/export/pdf', { birthData, lang, locationName }, { responseType: 'blob' }).then(r => r.data),
 };

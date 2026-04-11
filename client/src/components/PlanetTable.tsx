@@ -1,9 +1,10 @@
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Chip, Typography,
+  Paper, Chip, Typography, Tooltip,
 } from '@mui/material';
 import { useLang } from '../context/LangContext';
-import { getPlanetName, getSignName } from '../i18n';
+import { getPlanetName, getSignName, signTraits } from '../i18n';
+import type { Lang } from '../i18n';
 import type { PlanetPosition } from '../types/chart';
 
 const SIGN_SYMBOLS: Record<string, string> = {
@@ -37,33 +38,53 @@ export const PlanetTable: React.FC<Props> = ({ planets }) => {
             <TableCell sx={{ color: '#a855f7', fontWeight: 700 }}>{t.planet}</TableCell>
             <TableCell sx={{ color: '#a855f7', fontWeight: 700 }}>{t.sign}</TableCell>
             <TableCell sx={{ color: '#a855f7', fontWeight: 700 }}>{t.position}</TableCell>
-            <TableCell sx={{ color: '#a855f7', fontWeight: 700 }}>{t.house}</TableCell>
-            <TableCell sx={{ color: '#a855f7', fontWeight: 700 }}>{t.speed}</TableCell>
+            <TableCell sx={{ color: '#a855f7', fontWeight: 700 }}>
+              <Tooltip title={t.houseTooltip} arrow>
+                <span>{t.house}</span>
+              </Tooltip>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {planets.map((p) => (
-            <TableRow key={p.body}>
-              <TableCell sx={{ color: 'white' }}>
-                <Typography component="span" sx={{ mr: 1 }}>
-                  {PLANET_SYMBOLS[p.body] || ''}
-                </Typography>
-                {getPlanetName(lang, p.body)}
-              </TableCell>
-              <TableCell sx={{ color: 'white' }}>
-                {SIGN_SYMBOLS[p.sign] || ''} {getSignName(lang, p.sign)}
-              </TableCell>
-              <TableCell sx={{ color: 'white' }}>
-                {p.signDegree}{'\u00B0'} {String(p.signMinute).padStart(2, '0')}' {String(p.signSecond).padStart(2, '0')}"
-              </TableCell>
-              <TableCell sx={{ color: 'white' }}>
-                {p.house > 0 ? p.house : '-'}
-              </TableCell>
-              <TableCell sx={{ color: 'white' }}>
-                {p.isRetrograde && <Chip label="R" size="small" color="error" sx={{ mr: 1 }} />}
-                {p.speed.toFixed(4)}{'\u00B0'}/day
-              </TableCell>
-            </TableRow>
+            <>
+              <TableRow key={p.body}>
+                <TableCell sx={{ color: 'white' }}>
+                  <Typography component="span" sx={{ mr: 1 }}>
+                    {PLANET_SYMBOLS[p.body] || ''}
+                  </Typography>
+                  {getPlanetName(lang, p.body)}
+                </TableCell>
+                <TableCell sx={{ color: 'white' }}>
+                  {SIGN_SYMBOLS[p.sign] || ''} {getSignName(lang, p.sign)}
+                </TableCell>
+                <TableCell sx={{ color: 'white' }}>
+                  {p.signDegree}{'\u00B0'} {String(p.signMinute).padStart(2, '0')}' {String(p.signSecond).padStart(2, '0')}"
+                </TableCell>
+                <TableCell sx={{ color: 'white' }}>
+                  {p.house > 0 ? p.house : '-'}
+                  {p.isRetrograde && (
+                    <Tooltip title={t.retrogradeTooltip} arrow>
+                      <Chip
+                        label={`\u211E ${t.retrogradeLabel}`}
+                        size="small"
+                        color="error"
+                        sx={{ ml: 1 }}
+                      />
+                    </Tooltip>
+                  )}
+                </TableCell>
+              </TableRow>
+              {p.body !== 'Ascendant' && p.body !== 'Midheaven' && signTraits[lang as Lang]?.[p.sign] && (
+                <TableRow key={`${p.body}-trait`}>
+                  <TableCell colSpan={4} sx={{ borderBottom: '1px solid rgba(255,255,255,0.05)', py: 0.5, pl: 4 }}>
+                    <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.8rem', fontStyle: 'italic' }}>
+                      {PLANET_SYMBOLS[p.body] || ''} {getPlanetName(lang, p.body)} {t.inSign} {getSignName(lang, p.sign)} — {signTraits[lang as Lang][p.sign]}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           ))}
         </TableBody>
       </Table>

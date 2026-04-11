@@ -12,6 +12,11 @@ export function useChart() {
       astroApi.interpretChart(chart, lang),
   });
 
+  const numerologyMutation = useMutation({
+    mutationFn: ({ birthDate, lang }: { birthDate: string; lang: string }) =>
+      astroApi.calculateNumerology(birthDate, lang),
+  });
+
   return {
     calculateChart: chartMutation.mutate,
     chartResult: chartMutation.data,
@@ -21,5 +26,8 @@ export function useChart() {
     interpretChart: interpretMutation.mutate,
     interpretations: interpretMutation.data,
     interpretLoading: interpretMutation.isPending,
+
+    calculateNumerology: numerologyMutation.mutate,
+    numerologyResult: numerologyMutation.data,
   };
 }

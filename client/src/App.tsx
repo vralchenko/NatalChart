@@ -82,6 +82,8 @@ function AppContent() {
           >
             <ToggleButton value="en">EN</ToggleButton>
             <ToggleButton value="ru">RU</ToggleButton>
+            <ToggleButton value="de">DE</ToggleButton>
+            <ToggleButton value="uk">UA</ToggleButton>
           </ToggleButtonGroup>
         </Toolbar>
       </AppBar>

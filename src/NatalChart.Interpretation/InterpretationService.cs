@@ -16,10 +16,16 @@ public class InterpretationService : IInterpretationService
     {
         _planetInSign["en"] = LoadJson("planet-in-sign.json");
         _planetInSign["ru"] = LoadJson("planet-in-sign-ru.json");
+        _planetInSign["de"] = LoadJson("planet-in-sign-de.json");
+        _planetInSign["uk"] = LoadJson("planet-in-sign-uk.json");
         _planetInHouse["en"] = LoadJson("planet-in-house.json");
         _planetInHouse["ru"] = LoadJson("planet-in-house-ru.json");
+        _planetInHouse["de"] = LoadJson("planet-in-house-de.json");
+        _planetInHouse["uk"] = LoadJson("planet-in-house-uk.json");
         _aspectTexts["en"] = LoadJson("aspects.json");
         _aspectTexts["ru"] = LoadJson("aspects-ru.json");
+        _aspectTexts["de"] = LoadJson("aspects-de.json");
+        _aspectTexts["uk"] = LoadJson("aspects-uk.json");
     }
 
     public InterpretationResult GetInterpretations(NatalChartResult chart, string lang = "en")

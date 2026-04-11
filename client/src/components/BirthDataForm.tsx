@@ -12,7 +12,7 @@ import { useLang } from '../context/LangContext';
 import type { BirthData, GeocodingResult } from '../types/chart';
 
 interface Props {
-  onSubmit: (data: BirthData) => void;
+  onSubmit: (data: BirthData, locationName?: string) => void;
   loading?: boolean;
   title?: string;
 }
@@ -34,7 +34,7 @@ export const BirthDataForm: React.FC<Props> = ({ onSubmit, loading, title }) => 
       latitude: location.latitude,
       longitude: location.longitude,
       houseSystem,
-    });
+    }, location.displayName);
   };
 
   const isValid = date?.isValid() && location;

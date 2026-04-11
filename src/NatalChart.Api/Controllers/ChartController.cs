@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using NatalChart.Api.Helpers;
 using NatalChart.Core.Interfaces;
 using NatalChart.Core.Models;
 using NatalChart.Infrastructure;
@@ -12,15 +13,18 @@ public class ChartController : ControllerBase
     private readonly IChartCalculator _chartCalculator;
     private readonly IInterpretationService _interpretationService;
     private readonly ITimeZoneService _timeZoneService;
+    private readonly INumerologyService _numerologyService;
 
     public ChartController(
         IChartCalculator chartCalculator,
         IInterpretationService interpretationService,
-        ITimeZoneService timeZoneService)
+        ITimeZoneService timeZoneService,
+        INumerologyService numerologyService)
     {
         _chartCalculator = chartCalculator;
         _interpretationService = interpretationService;
         _timeZoneService = timeZoneService;
+        _numerologyService = numerologyService;
     }
 
     [HttpPost("calculate")]
@@ -29,31 +33,16 @@ public class ChartController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        // If TimeZoneId not provided, resolve from coordinates and convert to UTC
-        if (string.IsNullOrEmpty(birthData.TimeZoneId))
-        {
-            birthData.TimeZoneId = _timeZoneService.GetTimeZoneId(birthData.Latitude, birthData.Longitude);
-        }
-
-        // Parse the local birth time and convert to UTC
-        var timeParts = birthData.BirthTime.Split(':');
-        var hour = int.Parse(timeParts[0]);
-        var minute = timeParts.Length > 1 ? int.Parse(timeParts[1]) : 0;
-
-        var localDateTime = new DateTime(
-            birthData.BirthDate.Year,
-            birthData.BirthDate.Month,
-            birthData.BirthDate.Day,
-            hour, minute, 0
-        );
-
-        var utcDateTime = _timeZoneService.ConvertToUtc(localDateTime, birthData.Latitude, birthData.Longitude);
-
-        // Update birthData to UTC for the calculator
-        birthData.BirthDate = utcDateTime.Date;
-        birthData.BirthTime = utcDateTime.ToString("HH:mm");
+        BirthDataHelper.ResolveTimezoneAndConvertToUtc(birthData, _timeZoneService);
 
         var result = _chartCalculator.Calculate(birthData);
+        return Ok(result);
+    }
+
+    [HttpPost("numerology")]
+    public ActionResult<NumerologyResult> Numerology([FromBody] NumerologyRequest request, [FromQuery] string lang = "en")
+    {
+        var result = _numerologyService.Calculate(request.BirthDate, lang);
         return Ok(result);
     }
 

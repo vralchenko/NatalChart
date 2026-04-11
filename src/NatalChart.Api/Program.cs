@@ -1,8 +1,10 @@
 using System.Text.Json.Serialization;
+using NatalChart.Api.Services;
 using NatalChart.Astrology;
 using NatalChart.Core.Interfaces;
 using NatalChart.Infrastructure;
 using NatalChart.Interpretation;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +19,12 @@ builder.Services.AddSingleton<IHouseService, HouseService>();
 builder.Services.AddSingleton<IAspectService, AspectService>();
 builder.Services.AddSingleton<IChartCalculator, ChartCalculator>();
 builder.Services.AddSingleton<IInterpretationService, InterpretationService>();
+builder.Services.AddSingleton<INumerologyService, NumerologyService>();
 builder.Services.AddSingleton<ITimeZoneService, TimeZoneService>();
+builder.Services.AddSingleton<PdfExportService>();
 builder.Services.AddHttpClient<IGeocodingService, GeocodingService>();
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 // CORS
 builder.Services.AddCors(options =>

@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Box, Grid, Typography, Alert } from '@mui/material';
 import { BirthDataForm } from '../components/BirthDataForm';
 import { ChartWheel } from '../components/ChartWheel';
 import { PlanetTable } from '../components/PlanetTable';
 import { AspectGrid } from '../components/AspectGrid';
 import { InterpretationPanel } from '../components/InterpretationPanel';
+import { NumerologyPanel } from '../components/NumerologyPanel';
+import { ExportPdfButton } from '../components/ExportPdfButton';
 import { useChart } from '../hooks/useChart';
 import { useLang } from '../context/LangContext';
 import type { BirthData } from '../types/chart';
@@ -13,12 +16,19 @@ export const NatalChartPage: React.FC = () => {
   const {
     calculateChart, chartResult, chartLoading, chartError,
     interpretChart, interpretations,
+    calculateNumerology, numerologyResult,
   } = useChart();
 
-  const handleSubmit = (data: BirthData) => {
+  const [lastBirthData, setLastBirthData] = useState<BirthData | null>(null);
+  const [locationName, setLocationName] = useState('');
+
+  const handleSubmit = (data: BirthData, locName?: string) => {
+    setLastBirthData(data);
+    setLocationName(locName || '');
     calculateChart(data, {
       onSuccess: (result) => {
         interpretChart({ chart: result, lang });
+        calculateNumerology({ birthDate: data.birthDate, lang });
       },
     });
   };
@@ -39,6 +49,13 @@ export const NatalChartPage: React.FC = () => {
 
       {chartResult && (
         <Grid container spacing={3} sx={{ maxWidth: 1200, mx: 'auto' }}>
+          {lastBirthData && (
+            <Grid size={12}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <ExportPdfButton birthData={lastBirthData} locationName={locationName} />
+              </Box>
+            </Grid>
+          )}
           <Grid size={{ xs: 12, md: 6 }}>
             <ChartWheel chart={chartResult} />
           </Grid>
@@ -46,8 +63,16 @@ export const NatalChartPage: React.FC = () => {
             <PlanetTable planets={chartResult.planets} />
           </Grid>
           <Grid size={12}>
-            <AspectGrid aspects={chartResult.aspects} />
+            <AspectGrid
+              aspects={chartResult.aspects}
+              interpretations={interpretations?.aspects}
+            />
           </Grid>
+          {numerologyResult && (
+            <Grid size={12}>
+              <NumerologyPanel numerology={numerologyResult} />
+            </Grid>
+          )}
           {interpretations && (
             <Grid size={12}>
               <InterpretationPanel interpretations={interpretations} chart={chartResult} />
