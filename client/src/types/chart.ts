@@ -100,6 +100,7 @@ export interface InterpretationEntry {
 }
 
 export interface InterpretationResult {
+  summary: string;
   planetInSign: InterpretationEntry[];
   planetInHouse: InterpretationEntry[];
   aspects: InterpretationEntry[];

@@ -8,19 +8,27 @@ namespace NatalChart.Interpretation;
 
 public class InterpretationService : IInterpretationService
 {
-    private readonly Dictionary<string, string> _planetInSign;
-    private readonly Dictionary<string, string> _planetInHouse;
-    private readonly Dictionary<string, string> _aspectTexts;
+    private readonly Dictionary<string, Dictionary<string, string>> _planetInSign = new();
+    private readonly Dictionary<string, Dictionary<string, string>> _planetInHouse = new();
+    private readonly Dictionary<string, Dictionary<string, string>> _aspectTexts = new();
 
     public InterpretationService()
     {
-        _planetInSign = LoadJson("planet-in-sign.json");
-        _planetInHouse = LoadJson("planet-in-house.json");
-        _aspectTexts = LoadJson("aspects.json");
+        _planetInSign["en"] = LoadJson("planet-in-sign.json");
+        _planetInSign["ru"] = LoadJson("planet-in-sign-ru.json");
+        _planetInHouse["en"] = LoadJson("planet-in-house.json");
+        _planetInHouse["ru"] = LoadJson("planet-in-house-ru.json");
+        _aspectTexts["en"] = LoadJson("aspects.json");
+        _aspectTexts["ru"] = LoadJson("aspects-ru.json");
     }
 
-    public InterpretationResult GetInterpretations(NatalChartResult chart)
+    public InterpretationResult GetInterpretations(NatalChartResult chart, string lang = "en")
     {
+        var effectiveLang = _planetInSign.ContainsKey(lang) ? lang : "en";
+        var signData = _planetInSign[effectiveLang];
+        var houseData = _planetInHouse[effectiveLang];
+        var aspectData = _aspectTexts[effectiveLang];
+
         var result = new InterpretationResult();
 
         foreach (var planet in chart.Planets)
@@ -28,9 +36,8 @@ public class InterpretationService : IInterpretationService
             if (planet.Body == CelestialBody.Ascendant || planet.Body == CelestialBody.Midheaven)
                 continue;
 
-            // Planet in sign
             var signKey = $"{planet.Body}_{planet.Sign}";
-            if (_planetInSign.TryGetValue(signKey, out var signText))
+            if (signData.TryGetValue(signKey, out var signText))
             {
                 result.PlanetInSign.Add(new InterpretationEntry
                 {
@@ -40,9 +47,8 @@ public class InterpretationService : IInterpretationService
                 });
             }
 
-            // Planet in house
             var houseKey = $"{planet.Body}_House{planet.House}";
-            if (_planetInHouse.TryGetValue(houseKey, out var houseText))
+            if (houseData.TryGetValue(houseKey, out var houseText))
             {
                 result.PlanetInHouse.Add(new InterpretationEntry
                 {
@@ -59,9 +65,9 @@ public class InterpretationService : IInterpretationService
             var reverseKey = $"{aspect.Body2}_{aspect.Type}_{aspect.Body1}";
 
             var text = "";
-            if (_aspectTexts.TryGetValue(aspectKey, out var t))
+            if (aspectData.TryGetValue(aspectKey, out var t))
                 text = t;
-            else if (_aspectTexts.TryGetValue(reverseKey, out var rt))
+            else if (aspectData.TryGetValue(reverseKey, out var rt))
                 text = rt;
 
             if (!string.IsNullOrEmpty(text))

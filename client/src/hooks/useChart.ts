@@ -8,7 +8,8 @@ export function useChart() {
   });
 
   const interpretMutation = useMutation({
-    mutationFn: (chart: NatalChartResult) => astroApi.interpretChart(chart),
+    mutationFn: ({ chart, lang }: { chart: NatalChartResult; lang: string }) =>
+      astroApi.interpretChart(chart, lang),
   });
 
   return {

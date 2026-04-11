@@ -18,8 +18,8 @@ export const astroApi = {
   calculateChart: (data: BirthData) =>
     api.post<NatalChartResult>('/chart/calculate', data).then(r => r.data),
 
-  interpretChart: (chart: NatalChartResult) =>
-    api.post<InterpretationResult>('/chart/interpret', chart).then(r => r.data),
+  interpretChart: (chart: NatalChartResult, lang: string = 'en') =>
+    api.post<InterpretationResult>('/chart/interpret', chart, { params: { lang } }).then(r => r.data),
 
   calculateSynastry: (data: SynastryRequest) =>
     api.post<SynastryResult>('/synastry/calculate', data).then(r => r.data),
@@ -27,6 +27,6 @@ export const astroApi = {
   calculateTransits: (data: TransitRequest) =>
     api.post<TransitResult>('/transit/calculate', data).then(r => r.data),
 
-  searchLocation: (query: string) =>
-    api.get<GeocodingResult[]>('/geocoding/search', { params: { query } }).then(r => r.data),
+  searchLocation: (query: string, lang: string = 'en') =>
+    api.get<GeocodingResult[]>('/geocoding/search', { params: { query, lang } }).then(r => r.data),
 };

@@ -2,6 +2,7 @@ namespace NatalChart.Core.Models;
 
 public class InterpretationResult
 {
+    public string Summary { get; set; } = string.Empty;
     public List<InterpretationEntry> PlanetInSign { get; set; } = new();
     public List<InterpretationEntry> PlanetInHouse { get; set; } = new();
     public List<InterpretationEntry> Aspects { get; set; } = new();

@@ -1,25 +1,116 @@
 import {
-  Accordion, AccordionSummary, AccordionDetails, Typography, Box,
+  Accordion, AccordionSummary, AccordionDetails, Typography, Box, Paper,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import type { InterpretationResult } from '../types/chart';
+import { useLang } from '../context/LangContext';
+import { getPlanetName, getSignName, getAspectName } from '../i18n';
+import type { InterpretationResult, InterpretationEntry, NatalChartResult } from '../types/chart';
 
 interface Props {
   interpretations: InterpretationResult;
+  chart?: NatalChartResult;
 }
 
-export const InterpretationPanel: React.FC<Props> = ({ interpretations }) => {
+const ELEMENTS_EN: Record<string, string[]> = {
+  Fire: ['Aries', 'Leo', 'Sagittarius'],
+  Earth: ['Taurus', 'Virgo', 'Capricorn'],
+  Air: ['Gemini', 'Libra', 'Aquarius'],
+  Water: ['Cancer', 'Scorpio', 'Pisces'],
+};
+
+const ELEMENT_NAMES: Record<string, Record<string, string>> = {
+  en: { Fire: 'Fire', Earth: 'Earth', Air: 'Air', Water: 'Water' },
+  ru: { Fire: 'Огонь', Earth: 'Земля', Air: 'Воздух', Water: 'Вода' },
+};
+
+function getElement(sign: string): string {
+  for (const [el, signs] of Object.entries(ELEMENTS_EN)) {
+    if (signs.includes(sign)) return el;
+  }
+  return 'Unknown';
+}
+
+function translateTitle(entry: InterpretationEntry, lang: 'en' | 'ru', inSign: string, inHouse: string): string {
+  const parts = entry.title.split(' ');
+
+  if (parts.length === 3 && parts[1] === 'in') {
+    const planet = getPlanetName(lang, parts[0]);
+    const sign = getSignName(lang, parts[2]);
+    return `${planet} ${inSign} ${sign}`;
+  }
+
+  if (parts.length === 4 && parts[1] === 'in' && parts[2] === 'House') {
+    const planet = getPlanetName(lang, parts[0]);
+    return `${planet} ${inHouse} ${parts[3]}`;
+  }
+
+  if (parts.length === 3) {
+    const p1 = getPlanetName(lang, parts[0]);
+    const aspect = getAspectName(lang, parts[1]);
+    const p2 = getPlanetName(lang, parts[2]);
+    return `${p1} — ${aspect} — ${p2}`;
+  }
+
+  return entry.title;
+}
+
+export const InterpretationPanel: React.FC<Props> = ({ interpretations, chart }) => {
+  const { t, lang } = useLang();
+
   const sections = [
-    { title: 'Planets in Signs', entries: interpretations.planetInSign, color: '#a855f7' },
-    { title: 'Planets in Houses', entries: interpretations.planetInHouse, color: '#6366f1' },
-    { title: 'Aspects', entries: interpretations.aspects, color: '#22c55e' },
+    { title: t.planetsInSigns, entries: interpretations.planetInSign, color: '#a855f7' },
+    { title: t.planetsInHouses, entries: interpretations.planetInHouse, color: '#6366f1' },
+    { title: t.aspects, entries: interpretations.aspects, color: '#22c55e' },
   ];
+
+  // Build summary from chart data in the correct language
+  let summaryText = '';
+  if (chart) {
+    const sun = chart.planets.find(p => p.body === 'Sun');
+    const moon = chart.planets.find(p => p.body === 'Moon');
+    const asc = chart.planets.find(p => p.body === 'Ascendant');
+
+    const keyParts: string[] = [];
+    if (sun) keyParts.push(`${getPlanetName(lang, 'Sun')} ${t.inSign} ${getSignName(lang, sun.sign)} (${t.house} ${sun.house})`);
+    if (moon) keyParts.push(`${getPlanetName(lang, 'Moon')} ${t.inSign} ${getSignName(lang, moon.sign)} (${t.house} ${moon.house})`);
+    if (asc) keyParts.push(`${getPlanetName(lang, 'Ascendant')} ${t.inSign} ${getSignName(lang, asc.sign)}`);
+
+    // Count elements
+    const elCount: Record<string, number> = { Fire: 0, Earth: 0, Air: 0, Water: 0 };
+    for (const p of chart.planets) {
+      if (p.body === 'Ascendant' || p.body === 'Midheaven') continue;
+      elCount[getElement(p.sign)]++;
+    }
+    const dominant = Object.entries(elCount).sort((a, b) => b[1] - a[1])[0];
+    const elName = ELEMENT_NAMES[lang]?.[dominant[0]] || dominant[0];
+
+    if (lang === 'ru') {
+      summaryText = `Ключевые позиции: ${keyParts.join(', ')}. Доминирующая стихия: ${elName} (${dominant[1]} планет). Всего аспектов: ${chart.aspects.length}.`;
+    } else {
+      summaryText = `Key positions: ${keyParts.join(', ')}. Dominant element: ${elName} (${dominant[1]} planets). Total aspects: ${chart.aspects.length}.`;
+    }
+  }
 
   return (
     <Box>
       <Typography variant="h6" gutterBottom sx={{ color: 'white', fontWeight: 700 }}>
-        Interpretations
+        {t.interpretations}
       </Typography>
+
+      {summaryText && (
+        <Paper sx={{
+          p: 3, mb: 3,
+          background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))',
+          border: '1px solid rgba(168,85,247,0.3)',
+          borderRadius: 3,
+        }}>
+          <Typography variant="subtitle1" sx={{ color: '#a855f7', fontWeight: 700, mb: 1 }}>
+            {lang === 'ru' ? 'Общий вывод' : 'Summary'}
+          </Typography>
+          <Typography sx={{ color: '#e2e8f0', lineHeight: 1.8 }}>{summaryText}</Typography>
+        </Paper>
+      )}
+
       {sections.map((section) => (
         <Box key={section.title} sx={{ mb: 2 }}>
           <Typography variant="subtitle1" sx={{ color: section.color, fontWeight: 600, mb: 1 }}>
@@ -32,12 +123,13 @@ export const InterpretationPanel: React.FC<Props> = ({ interpretations }) => {
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
                 '&:before': { display: 'none' },
-                mb: 1,
-                borderRadius: '8px !important',
+                mb: 1, borderRadius: '8px !important',
               }}
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}>
-                <Typography sx={{ color: 'white', fontWeight: 600 }}>{entry.title}</Typography>
+                <Typography sx={{ color: 'white', fontWeight: 600 }}>
+                  {translateTitle(entry, lang, t.inSign, t.inHouse)}
+                </Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Typography sx={{ color: '#d1d5db' }}>{entry.text}</Typography>
@@ -46,7 +138,7 @@ export const InterpretationPanel: React.FC<Props> = ({ interpretations }) => {
           ))}
           {section.entries.length === 0 && (
             <Typography sx={{ color: '#6b7280', fontStyle: 'italic' }}>
-              No interpretations available for this section.
+              {t.noInterpretations}
             </Typography>
           )}
         </Box>

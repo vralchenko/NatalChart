@@ -16,12 +16,12 @@ public class GeocodingController : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<List<GeocodingResult>>> Search([FromQuery] string query)
+    public async Task<ActionResult<List<GeocodingResult>>> Search([FromQuery] string query, [FromQuery] string lang = "en")
     {
         if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
             return BadRequest("Query must be at least 2 characters");
 
-        var results = await _geocodingService.SearchAsync(query);
+        var results = await _geocodingService.SearchAsync(query, lang);
         return Ok(results);
     }
 }

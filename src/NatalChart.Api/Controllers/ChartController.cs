@@ -58,9 +58,9 @@ public class ChartController : ControllerBase
     }
 
     [HttpPost("interpret")]
-    public ActionResult<InterpretationResult> Interpret([FromBody] NatalChartResult chart)
+    public ActionResult<InterpretationResult> Interpret([FromBody] NatalChartResult chart, [FromQuery] string lang = "en")
     {
-        var result = _interpretationService.GetInterpretations(chart);
+        var result = _interpretationService.GetInterpretations(chart, lang);
         return Ok(result);
     }
 }

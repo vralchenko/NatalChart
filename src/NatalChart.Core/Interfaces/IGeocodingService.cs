@@ -4,5 +4,5 @@ namespace NatalChart.Core.Interfaces;
 
 public interface IGeocodingService
 {
-    Task<List<GeocodingResult>> SearchAsync(string query);
+    Task<List<GeocodingResult>> SearchAsync(string query, string lang = "en");
 }

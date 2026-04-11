@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Autocomplete, TextField, CircularProgress } from '@mui/material';
 import { astroApi } from '../api/astroApi';
+import { useLang } from '../context/LangContext';
 import type { GeocodingResult } from '../types/chart';
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export const LocationAutocomplete: React.FC<Props> = ({ onSelect }) => {
+  const { t, lang } = useLang();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<GeocodingResult[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -23,7 +25,7 @@ export const LocationAutocomplete: React.FC<Props> = ({ onSelect }) => {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const results = await astroApi.searchLocation(inputValue);
+        const results = await astroApi.searchLocation(inputValue, lang);
         if (active) setOptions(results);
       } catch {
         if (active) setOptions([]);
@@ -45,6 +47,7 @@ export const LocationAutocomplete: React.FC<Props> = ({ onSelect }) => {
       onClose={() => setOpen(false)}
       options={options}
       loading={loading}
+      filterOptions={(x) => x}
       getOptionLabel={(opt) => opt.displayName}
       isOptionEqualToValue={(opt, val) =>
         opt.latitude === val.latitude && opt.longitude === val.longitude
@@ -53,17 +56,24 @@ export const LocationAutocomplete: React.FC<Props> = ({ onSelect }) => {
       onInputChange={(_, value) => setInputValue(value)}
       renderInput={(params) => (
         <TextField
-          {...params}
-          label="Place of Birth"
-          placeholder="Start typing a city..."
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading && <CircularProgress color="inherit" size={20} />}
-                {params.InputProps.endAdornment}
-              </>
-            ),
+          id={params.id}
+          disabled={params.disabled}
+          fullWidth={params.fullWidth}
+          size={params.size}
+          label={t.placeOfBirth}
+          placeholder={t.startTypingCity}
+          slotProps={{
+            inputLabel: params.slotProps.inputLabel,
+            input: {
+              ...params.slotProps.input,
+              endAdornment: (
+                <>
+                  {loading && <CircularProgress color="inherit" size={20} />}
+                  {params.slotProps.input.endAdornment}
+                </>
+              ),
+            },
+            htmlInput: params.slotProps.htmlInput,
           }}
         />
       )}

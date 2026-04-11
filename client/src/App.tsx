@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider, createTheme, CssBaseline, AppBar, Toolbar, Typography, Container, Box, Button } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, AppBar, Toolbar, Typography, Container, Box, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { NatalChartPage } from './pages/NatalChartPage';
 import { SynastryPage } from './pages/SynastryPage';
 import { TransitsPage } from './pages/TransitsPage';
+import { LangProvider, useLang } from './context/LangContext';
+import type { Lang } from './i18n';
 
 const darkTheme = createTheme({
   palette: {
@@ -34,39 +36,71 @@ const navLinkStyle = ({ isActive }: { isActive: boolean }) => ({
   textDecoration: 'none',
 });
 
+function AppContent() {
+  const { lang, setLang, t } = useLang();
+
+  return (
+    <BrowserRouter>
+      <AppBar position="static" sx={{ background: 'rgba(10,5,32,0.9)', backdropFilter: 'blur(10px)' }}>
+        <Toolbar>
+          <Typography variant="h6" sx={{ fontWeight: 800, mr: 4, color: '#a855f7' }}>
+            NatalChart
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexGrow: 1 }}>
+            <Button component={NavLink} to="/" style={navLinkStyle} sx={{ textTransform: 'none' }}>
+              {t.natalChart}
+            </Button>
+            <Button component={NavLink} to="/synastry" style={navLinkStyle} sx={{ textTransform: 'none' }}>
+              {t.synastry}
+            </Button>
+            <Button component={NavLink} to="/transits" style={navLinkStyle} sx={{ textTransform: 'none' }}>
+              {t.transits}
+            </Button>
+          </Box>
+          <ToggleButtonGroup
+            value={lang}
+            exclusive
+            onChange={(_, v) => v && setLang(v as Lang)}
+            size="small"
+            sx={{
+              '& .MuiToggleButton-root': {
+                color: '#9ca3af',
+                borderColor: 'rgba(255,255,255,0.15)',
+                px: 1.5,
+                py: 0.3,
+                fontSize: '0.8rem',
+                '&.Mui-selected': {
+                  color: '#a855f7',
+                  bgcolor: 'rgba(168,85,247,0.15)',
+                },
+              },
+            }}
+          >
+            <ToggleButton value="en">EN</ToggleButton>
+            <ToggleButton value="ru">RU</ToggleButton>
+          </ToggleButtonGroup>
+        </Toolbar>
+      </AppBar>
+
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Routes>
+          <Route path="/" element={<NatalChartPage />} />
+          <Route path="/synastry" element={<SynastryPage />} />
+          <Route path="/transits" element={<TransitsPage />} />
+        </Routes>
+      </Container>
+    </BrowserRouter>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        <BrowserRouter>
-          <AppBar position="static" sx={{ background: 'rgba(10,5,32,0.9)', backdropFilter: 'blur(10px)' }}>
-            <Toolbar>
-              <Typography variant="h6" sx={{ fontWeight: 800, mr: 4, color: '#a855f7' }}>
-                NatalChart
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button component={NavLink} to="/" style={navLinkStyle} sx={{ textTransform: 'none' }}>
-                  Natal Chart
-                </Button>
-                <Button component={NavLink} to="/synastry" style={navLinkStyle} sx={{ textTransform: 'none' }}>
-                  Synastry
-                </Button>
-                <Button component={NavLink} to="/transits" style={navLinkStyle} sx={{ textTransform: 'none' }}>
-                  Transits
-                </Button>
-              </Box>
-            </Toolbar>
-          </AppBar>
-
-          <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Routes>
-              <Route path="/" element={<NatalChartPage />} />
-              <Route path="/synastry" element={<SynastryPage />} />
-              <Route path="/transits" element={<TransitsPage />} />
-            </Routes>
-          </Container>
-        </BrowserRouter>
+        <LangProvider>
+          <AppContent />
+        </LangProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
