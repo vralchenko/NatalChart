@@ -45,14 +45,14 @@ export const ChartWheel: React.FC<Props> = ({ chart }) => {
     const ascLon = chart.houses.length > 0 ? chart.houses[0].longitude : 0;
 
     const toAngle = (lon: number) => {
-      // Standard: Aries = 0° at 9 o'clock, counterclockwise
-      // Rotated so ASC is at 9 o'clock (left)
-      return -(lon - ascLon) * (Math.PI / 180) + Math.PI;
+      // Counterclockwise: ASC at 9 o'clock (left, π radians)
+      // Zodiac degrees increase counterclockwise
+      return (ascLon - lon) * (Math.PI / 180) + Math.PI;
     };
 
     const polarToXY = (angle: number, r: number) => ({
       x: center + r * Math.cos(angle),
-      y: center - r * Math.sin(angle),
+      y: center + r * Math.sin(angle),
     });
 
     // Background circle
