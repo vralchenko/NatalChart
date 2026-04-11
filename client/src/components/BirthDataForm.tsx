@@ -56,7 +56,7 @@ export const BirthDataForm: React.FC<Props> = ({ onSubmit, loading, title }) => 
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
                 <DatePicker
                   label={t.dateOfBirth}
                   value={date}
@@ -66,7 +66,7 @@ export const BirthDataForm: React.FC<Props> = ({ onSubmit, loading, title }) => 
                   slotProps={{ textField: { fullWidth: true } }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
                 <TimePicker
                   label={t.timeOfBirth}
                   value={time}
@@ -75,10 +75,10 @@ export const BirthDataForm: React.FC<Props> = ({ onSubmit, loading, title }) => 
                   slotProps={{ textField: { fullWidth: true, title: t.timeOptionalHint } }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <LocationAutocomplete onSelect={setLocation} />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
                   select fullWidth
                   label={
