@@ -11,7 +11,7 @@ import type {
 } from '../types/chart';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5102/api',
+  baseURL: (import.meta.env.VITE_API_URL || 'http://localhost:5102') + '/api',
 });
 
 export const astroApi = {

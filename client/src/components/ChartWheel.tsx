@@ -33,7 +33,6 @@ export const ChartWheel: React.FC<Props> = ({ chart }) => {
     const size = 500;
     const center = size / 2;
     const outerR = 230;
-    const signR = 200;
     const innerR = 170;
     const houseR = 80;
 

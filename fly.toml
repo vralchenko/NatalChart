@@ -1,0 +1,20 @@
+# fly.toml app configuration file generated for natalchart-api-empty-breeze-8714 on 2026-04-11T07:55:46+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'natalchart-api-empty-breeze-8714'
+primary_region = 'fra'
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'

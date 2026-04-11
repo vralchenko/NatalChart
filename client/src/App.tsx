@@ -30,11 +30,21 @@ const darkTheme = createTheme({
 
 const queryClient = new QueryClient();
 
-const navLinkStyle = ({ isActive }: { isActive: boolean }) => ({
-  color: isActive ? '#a855f7' : '#9ca3af',
-  fontWeight: isActive ? 700 : 400,
-  textDecoration: 'none',
-});
+function NavButton({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <NavLink to={to} style={{ textDecoration: 'none' }}>
+      {({ isActive }) => (
+        <Button sx={{
+          textTransform: 'none',
+          color: isActive ? '#a855f7' : '#9ca3af',
+          fontWeight: isActive ? 700 : 400,
+        }}>
+          {children}
+        </Button>
+      )}
+    </NavLink>
+  );
+}
 
 function AppContent() {
   const { lang, setLang, t } = useLang();
@@ -47,15 +57,9 @@ function AppContent() {
             NatalChart
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, flexGrow: 1 }}>
-            <Button component={NavLink} to="/" style={navLinkStyle} sx={{ textTransform: 'none' }}>
-              {t.natalChart}
-            </Button>
-            <Button component={NavLink} to="/synastry" style={navLinkStyle} sx={{ textTransform: 'none' }}>
-              {t.synastry}
-            </Button>
-            <Button component={NavLink} to="/transits" style={navLinkStyle} sx={{ textTransform: 'none' }}>
-              {t.transits}
-            </Button>
+            <NavButton to="/">{t.natalChart}</NavButton>
+            <NavButton to="/synastry">{t.synastry}</NavButton>
+            <NavButton to="/transits">{t.transits}</NavButton>
           </Box>
           <ToggleButtonGroup
             value={lang}

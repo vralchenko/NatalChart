@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import {
-  Card, CardContent, Grid, Button, TextField, MenuItem, CircularProgress, Box, Typography,
+  Card, CardContent, Grid, Button, TextField, MenuItem, CircularProgress, Typography,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { useLang } from '../context/LangContext';
 import type { BirthData, GeocodingResult } from '../types/chart';
