@@ -1,49 +1,64 @@
 # NatalChart
 
-Web application for building natal charts (Western astrology, tropical zodiac, Placidus house system).
+Full-stack web application for building natal charts, synastry and transit analysis.
+
+**Live:** https://natalchart-c4z.pages.dev
 
 **Stack:** .NET 8 Web API + React / TypeScript / Vite + Material UI
 
 ## Features
 
-- **Natal Chart** — planet positions, house cusps, aspect detection with orbs, SVG zodiac wheel
-- **Interpretations** — planet-in-sign, planet-in-house, aspect texts (366 entries)
-- **Synastry** — compatibility analysis between two charts with inter-aspects
+- **Natal Chart** — planet positions, house cusps, aspect detection with configurable orbs, interactive SVG zodiac wheel
+- **Synastry** — compatibility analysis between two birth charts with inter-aspects
 - **Transits** — current planetary transits to natal chart
-- **Geocoding** — location search with coordinate resolution (Nominatim/OpenStreetMap)
+- **Interpretations** — 366 text entries for planets in signs, houses, and aspects (EN + RU)
+- **Bilingual UI** — full Russian / English localization with language switcher
+- **Geocoding** — city search powered by Nominatim (OpenStreetMap), results in selected language
 - **Timezone handling** — automatic timezone detection from coordinates (GeoTimeZone + NodaTime)
+- **Birth time optional** — works without exact birth time (houses will be approximate)
+
+## Live Demo
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://natalchart-c4z.pages.dev |
+| API | https://natalchart-api-empty-breeze-8714.fly.dev |
+| Swagger | https://natalchart-api-empty-breeze-8714.fly.dev/swagger |
 
 ## Architecture
 
 ```
 NatalChart/
 ├── src/
-│   ├── NatalChart.Api/              # ASP.NET 8 Web API (controllers, DI, Swagger)
+│   ├── NatalChart.Api/              # ASP.NET 8 Web API (controllers, DI, Swagger, CORS)
 │   ├── NatalChart.Core/             # Domain: models, enums, interfaces
 │   ├── NatalChart.Astrology/        # Computation engine (SwissEphNet)
-│   ├── NatalChart.Interpretation/   # Text interpretations (JSON data)
+│   ├── NatalChart.Interpretation/   # Text interpretations (EN + RU JSON data)
 │   └── NatalChart.Infrastructure/   # External services (geocoding, timezone)
 ├── tests/
 │   ├── NatalChart.Astrology.Tests/  # 17 tests (ephemeris, houses, aspects, calculator)
 │   └── NatalChart.Interpretation.Tests/  # 3 tests
-└── client/                          # React + TypeScript (Vite)
-    └── src/
-        ├── api/          # Axios API client
-        ├── types/        # TypeScript types matching backend models
-        ├── components/   # ChartWheel, PlanetTable, AspectGrid, BirthDataForm, etc.
-        ├── hooks/        # useChart, useSynastry, useTransits (React Query)
-        └── pages/        # NatalChartPage, SynastryPage, TransitsPage
+├── client/                          # React + TypeScript (Vite)
+│   └── src/
+│       ├── api/          # Axios API client
+│       ├── types/        # TypeScript types matching backend models
+│       ├── components/   # ChartWheel, PlanetTable, AspectGrid, BirthDataForm, etc.
+│       ├── context/      # Language context (RU/EN)
+│       ├── hooks/        # useChart, useSynastry, useTransits (React Query)
+│       └── pages/        # NatalChartPage, SynastryPage, TransitsPage
+├── Dockerfile            # Multi-stage .NET 8 build
+└── fly.toml              # Fly.io deployment config
 ```
 
 ## API Endpoints
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| POST | `/api/chart/calculate` | Calculate natal chart |
-| POST | `/api/chart/interpret` | Get text interpretations |
-| POST | `/api/synastry/calculate` | Synastry (two chart comparison) |
-| POST | `/api/transit/calculate` | Transits to natal chart |
-| GET | `/api/geocoding/search?query=` | Location search |
+| POST | `/api/chart/calculate` | Calculate natal chart (planets, houses, aspects) |
+| POST | `/api/chart/interpret?lang=en` | Get text interpretations (en/ru) |
+| POST | `/api/synastry/calculate` | Compare two charts with inter-aspects |
+| POST | `/api/transit/calculate` | Current transits to natal chart |
+| GET | `/api/geocoding/search?query=&lang=` | Location search (Nominatim proxy) |
 
 ## Getting Started
 
@@ -76,19 +91,43 @@ Frontend starts at `http://localhost:5173`.
 dotnet test
 ```
 
-## Libraries
+20 tests (17 astrology + 3 interpretation).
+
+## Deployment
+
+### Backend — Fly.io
+
+```bash
+flyctl deploy
+```
+
+### Frontend — Cloudflare Pages
+
+```bash
+cd client
+VITE_API_URL=https://your-api.fly.dev npm run build
+wrangler pages deploy dist --project-name natalchart
+```
+
+## Tech Stack
 
 ### Backend
-- **SwissEphNet** — C# port of Swiss Ephemeris (planet positions, house cusps)
-- **GeoTimeZone** — timezone lookup by coordinates
-- **NodaTime** — accurate historical timezone/DST handling
-- **Swashbuckle** — Swagger/OpenAPI
+| Library | Purpose |
+|---------|---------|
+| **SwissEphNet** | C# port of Swiss Ephemeris — planet positions, house cusps |
+| **GeoTimeZone** | Timezone lookup by geographic coordinates |
+| **NodaTime** | Accurate historical timezone / DST handling |
+| **Swashbuckle** | Swagger / OpenAPI documentation |
 
 ### Frontend
-- **Material UI** + **MUI X Date Pickers** + **dayjs** — UI components
-- **@tanstack/react-query** — server state management
-- **react-router-dom** — client-side routing
-- **axios** — HTTP client
+| Library | Purpose |
+|---------|---------|
+| **React 19** + **TypeScript** | UI framework |
+| **Vite** | Build tool |
+| **Material UI v9** | Component library + date/time pickers |
+| **@tanstack/react-query** | Server state management |
+| **react-router-dom** | Client-side routing |
+| **axios** | HTTP client |
 
 ## Astrology Details
 
@@ -96,10 +135,11 @@ dotnet test
 - **House systems:** Placidus (default), Koch, Equal, Whole Sign
 - **Celestial bodies:** Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto, North Node, Chiron
 - **Aspects:** Conjunction (0°), Opposition (180°), Trine (120°), Square (90°), Sextile (60°), Quincunx (150°)
-- **Orbs:** Wider for luminaries (Sun/Moon), tighter for outer planets
 
-| Aspect | Luminary Orb | Other Orb |
-|--------|-------------|-----------|
+### Aspect Orbs
+
+| Aspect | Luminary Orb (Sun/Moon) | Other Planets |
+|--------|------------------------|---------------|
 | Conjunction | 10° | 8° |
 | Opposition | 10° | 8° |
 | Trine | 8° | 6° |
@@ -107,6 +147,10 @@ dotnet test
 | Sextile | 6° | 4° |
 | Quincunx | 3° | 2° |
 
-## Verification
+## Testing & Verification
 
-Golden chart test: **January 1, 2000, 12:00 UTC, Greenwich (51.4769, -0.0005)** — Sun in Capricorn ~280.5°, Ascendant in Aries. All positions verified against reference ephemeris data.
+**Golden chart:** January 1, 2000, 12:00 UTC, Greenwich (51.4769, -0.0005) — Sun in Capricorn ~280.5°, Ascendant in Aries. Positions verified against astro.com reference data.
+
+## Author
+
+**Viktor Ralchenko** — [LinkedIn](https://www.linkedin.com/in/vralchenko) | [Portfolio](https://vralchenko.pages.dev) | vralchenko@gmail.com
