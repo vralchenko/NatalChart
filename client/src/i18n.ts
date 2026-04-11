@@ -223,6 +223,11 @@ export const translations = {
     downloadPdf: 'Download PDF',
     exportingPdf: 'Exporting...',
     summary: 'Summary',
+    houseSystemHint: 'A house system divides the sky into 12 sectors representing life areas. Different systems use different math — pick the one your tradition uses, or Placidus if unsure.',
+    placidusDesc: 'Placidus — the most common Western system. Uses time-based division and works well for mid-latitudes.',
+    kochDesc: 'Koch — similar to Placidus but based on birthplace latitude. Popular in German-speaking astrology.',
+    equalDesc: 'Equal — all 12 houses are exactly 30° wide, starting from the Ascendant. Simple and reliable at any latitude.',
+    wholeSignDesc: 'Whole Sign — each zodiac sign equals one house. The oldest system, used in Hellenistic and Vedic astrology.',
   },
   ru: {
     appName: 'НатальнаяКарта',
@@ -287,6 +292,11 @@ export const translations = {
     downloadPdf: 'Скачать PDF',
     exportingPdf: 'Экспорт...',
     summary: 'Общий вывод',
+    houseSystemHint: 'Система домов делит небо на 12 секторов — сфер жизни. Разные системы используют разную математику. Выберите ту, что принята в вашей традиции, или Placidus, если не уверены.',
+    placidusDesc: 'Placidus — самая распространённая западная система. Делит время и хорошо работает на средних широтах.',
+    kochDesc: 'Koch — похожа на Placidus, но опирается на широту места рождения. Популярна в немецкой астрологии.',
+    equalDesc: 'Equal — все 12 домов ровно по 30°, начиная от Асцендента. Простая и надёжная на любой широте.',
+    wholeSignDesc: 'Whole Sign — каждый знак зодиака равен одному дому. Древнейшая система — эллинистическая и ведическая астрология.',
   },
   de: {
     appName: 'NatalChart',
@@ -351,6 +361,11 @@ export const translations = {
     downloadPdf: 'PDF herunterladen',
     exportingPdf: 'Exportiere...',
     summary: 'Zusammenfassung',
+    houseSystemHint: 'Ein Häusersystem teilt den Himmel in 12 Sektoren — Lebensbereiche. Verschiedene Systeme nutzen unterschiedliche Berechnungen. Wählen Sie das System Ihrer Tradition — oder Placidus, falls unsicher.',
+    placidusDesc: 'Placidus — das verbreitetste westliche System. Zeitbasierte Einteilung, bewährt in mittleren Breiten.',
+    kochDesc: 'Koch — ähnlich wie Placidus, basiert aber auf dem Geburtsort-Breitengrad. Im deutschsprachigen Raum beliebt.',
+    equalDesc: 'Equal — alle 12 Häuser sind exakt 30° breit, ab dem Aszendenten. Einfach und zuverlässig in jeder Breite.',
+    wholeSignDesc: 'Whole Sign — jedes Tierkreiszeichen entspricht einem Haus. Das älteste System — hellenistische und vedische Astrologie.',
   },
   uk: {
     appName: 'НатальнаКарта',
@@ -415,6 +430,11 @@ export const translations = {
     downloadPdf: 'Завантажити PDF',
     exportingPdf: 'Експорт...',
     summary: 'Загальний висновок',
+    houseSystemHint: 'Система домів ділить небо на 12 секторів — сфер життя. Різні системи використовують різну математику. Оберіть ту, що прийнята у вашій традиції, або Placidus, якщо не впевнені.',
+    placidusDesc: 'Placidus — найпоширеніша західна система. Часовий поділ, добре працює на середніх широтах.',
+    kochDesc: 'Koch — схожа на Placidus, але спирається на широту місця народження. Популярна в німецькій астрології.',
+    equalDesc: 'Equal — усі 12 домів рівно по 30°, починаючи від Асцендента. Проста і надійна на будь-якій широті.',
+    wholeSignDesc: 'Whole Sign — кожен знак зодіаку дорівнює одному дому. Найдавніша система — елліністична та ведична астрологія.',
   },
 } as const;
 

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import {
   Card, CardContent, Grid, Button, TextField, MenuItem, CircularProgress, Typography,
+  Tooltip, Box,
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -23,6 +25,7 @@ export const BirthDataForm: React.FC<Props> = ({ onSubmit, loading, title }) => 
   const [time, setTime] = useState<Dayjs | null>(null);
   const [location, setLocation] = useState<GeocodingResult | null>(null);
   const [houseSystem, setHouseSystem] = useState(0);
+  const houseSystemDescs = [t.placidusDesc, t.kochDesc, t.equalDesc, t.wholeSignDesc];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,14 +81,31 @@ export const BirthDataForm: React.FC<Props> = ({ onSubmit, loading, title }) => 
               <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <TextField
                   select fullWidth
-                  label={t.houses}
+                  label={
+                    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                      {t.houses}
+                      <Tooltip title={t.houseSystemHint} arrow placement="top">
+                        <InfoOutlinedIcon sx={{ fontSize: 16, opacity: 0.7, cursor: 'help' }} />
+                      </Tooltip>
+                    </Box>
+                  }
                   value={houseSystem}
                   onChange={(e) => setHouseSystem(Number(e.target.value))}
+                  helperText={houseSystemDescs[houseSystem]}
+                  slotProps={{ formHelperText: { sx: { fontSize: '0.72rem', lineHeight: 1.3, mx: 0 } } }}
                 >
-                  <MenuItem value={0}>Placidus</MenuItem>
-                  <MenuItem value={1}>Koch</MenuItem>
-                  <MenuItem value={2}>Equal</MenuItem>
-                  <MenuItem value={3}>Whole Sign</MenuItem>
+                  <MenuItem value={0}>
+                    <Tooltip title={t.placidusDesc} arrow placement="right"><span>Placidus</span></Tooltip>
+                  </MenuItem>
+                  <MenuItem value={1}>
+                    <Tooltip title={t.kochDesc} arrow placement="right"><span>Koch</span></Tooltip>
+                  </MenuItem>
+                  <MenuItem value={2}>
+                    <Tooltip title={t.equalDesc} arrow placement="right"><span>Equal</span></Tooltip>
+                  </MenuItem>
+                  <MenuItem value={3}>
+                    <Tooltip title={t.wholeSignDesc} arrow placement="right"><span>Whole Sign</span></Tooltip>
+                  </MenuItem>
                 </TextField>
               </Grid>
               <Grid size={12}>
