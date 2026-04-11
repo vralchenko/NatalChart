@@ -93,6 +93,27 @@ function AppContent() {
           <Route path="/transits" element={<TransitsPage />} />
         </Routes>
       </Container>
+
+      <Box component="footer" sx={{
+        mt: 'auto', py: 3,
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        textAlign: 'center',
+      }}>
+        <Typography sx={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.85rem', mb: 0.5 }}>
+          &copy; {new Date().getFullYear()} Viktor Ralchenko
+        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3 }}>
+          <Typography component="a" href="mailto:vralchenko@gmail.com" sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', textDecoration: 'none', '&:hover': { color: '#a855f7' } }}>
+            vralchenko@gmail.com
+          </Typography>
+          <Typography component="a" href="https://www.linkedin.com/in/vralchenko" target="_blank" rel="noopener" sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', textDecoration: 'none', '&:hover': { color: '#a855f7' } }}>
+            LinkedIn
+          </Typography>
+          <Typography component="a" href="https://github.com/vralchenko" target="_blank" rel="noopener" sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', textDecoration: 'none', '&:hover': { color: '#a855f7' } }}>
+            GitHub
+          </Typography>
+        </Box>
+      </Box>
     </BrowserRouter>
   );
 }
