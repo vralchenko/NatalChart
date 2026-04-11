@@ -32,8 +32,18 @@ public class InterpretationService : IInterpretationService
     {
         var effectiveLang = _planetInSign.ContainsKey(lang) ? lang : "en";
         var signData = _planetInSign[effectiveLang];
+        var signFallback = _planetInSign["en"];
         var houseData = _planetInHouse[effectiveLang];
+        var houseFallback = _planetInHouse["en"];
         var aspectData = _aspectTexts[effectiveLang];
+        var aspectFallback = _aspectTexts["en"];
+
+        string? Lookup(Dictionary<string, string> primary, Dictionary<string, string> fallback, string key)
+        {
+            if (primary.TryGetValue(key, out var v) && !string.IsNullOrWhiteSpace(v)) return v;
+            if (fallback.TryGetValue(key, out var f) && !string.IsNullOrWhiteSpace(f)) return f;
+            return null;
+        }
 
         var result = new InterpretationResult();
 
@@ -43,7 +53,8 @@ public class InterpretationService : IInterpretationService
                 continue;
 
             var signKey = $"{planet.Body}_{planet.Sign}";
-            if (signData.TryGetValue(signKey, out var signText))
+            var signText = Lookup(signData, signFallback, signKey);
+            if (signText != null)
             {
                 result.PlanetInSign.Add(new InterpretationEntry
                 {
@@ -54,7 +65,8 @@ public class InterpretationService : IInterpretationService
             }
 
             var houseKey = $"{planet.Body}_House{planet.House}";
-            if (houseData.TryGetValue(houseKey, out var houseText))
+            var houseText = Lookup(houseData, houseFallback, houseKey);
+            if (houseText != null)
             {
                 result.PlanetInHouse.Add(new InterpretationEntry
                 {
@@ -70,11 +82,8 @@ public class InterpretationService : IInterpretationService
             var aspectKey = $"{aspect.Body1}_{aspect.Type}_{aspect.Body2}";
             var reverseKey = $"{aspect.Body2}_{aspect.Type}_{aspect.Body1}";
 
-            var text = "";
-            if (aspectData.TryGetValue(aspectKey, out var t))
-                text = t;
-            else if (aspectData.TryGetValue(reverseKey, out var rt))
-                text = rt;
+            var text = Lookup(aspectData, aspectFallback, aspectKey)
+                    ?? Lookup(aspectData, aspectFallback, reverseKey);
 
             if (!string.IsNullOrEmpty(text))
             {
