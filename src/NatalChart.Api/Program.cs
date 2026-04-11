@@ -23,13 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:3000",
-                "https://natalchart.pages.dev",
-                "https://natalchart-c4z.pages.dev"
-              )
-              .SetIsOriginAllowedToAllowWildcardSubdomains()
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
