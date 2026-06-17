@@ -64,7 +64,7 @@ const aspectNames: Record<Lang, Record<string, string>> = {
     Square: 'Quadrat', Sextile: 'Sextil', Quincunx: 'Quincunx',
   },
   uk: {
-    Conjunction: 'Сполучення', Opposition: 'Опозиція', Trine: 'Трін',
+    Conjunction: 'З\'єднання', Opposition: 'Опозиція', Trine: 'Тригон',
     Square: 'Квадратура', Sextile: 'Секстиль', Quincunx: 'Квіконс',
   },
 };

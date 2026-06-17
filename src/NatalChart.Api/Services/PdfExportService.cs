@@ -75,7 +75,7 @@ public class PdfExportService
             ["Square"] = "Quadrat", ["Sextile"] = "Sextil", ["Quincunx"] = "Quincunx",
         },
         ["uk"] = new() {
-            ["Conjunction"] = "Сполучення", ["Opposition"] = "Опозиція", ["Trine"] = "Трін",
+            ["Conjunction"] = "З'єднання", ["Opposition"] = "Опозиція", ["Trine"] = "Тригон",
             ["Square"] = "Квадратура", ["Sextile"] = "Секстиль", ["Quincunx"] = "Квіконс",
         },
     };
@@ -107,6 +107,8 @@ public class PdfExportService
             ["yes"] = "Yes",
             ["no"] = "No",
             ["generatedOn"] = "Generated on",
+            ["inSign"] = "in",
+            ["inHouse"] = "in House",
         },
         ["ru"] = new() {
             ["title"] = "Отчёт натальной карты",
@@ -133,6 +135,8 @@ public class PdfExportService
             ["yes"] = "Да",
             ["no"] = "Нет",
             ["generatedOn"] = "Сгенерировано",
+            ["inSign"] = "в",
+            ["inHouse"] = "в доме",
         },
         ["de"] = new() {
             ["title"] = "Geburtshoroskop-Bericht",
@@ -159,6 +163,8 @@ public class PdfExportService
             ["yes"] = "Ja",
             ["no"] = "Nein",
             ["generatedOn"] = "Erstellt am",
+            ["inSign"] = "in",
+            ["inHouse"] = "im Haus",
         },
         ["uk"] = new() {
             ["title"] = "Звіт натальної карти",
@@ -185,6 +191,8 @@ public class PdfExportService
             ["yes"] = "Так",
             ["no"] = "Ні",
             ["generatedOn"] = "Згенеровано",
+            ["inSign"] = "у",
+            ["inHouse"] = "у домі",
         },
     };
 
@@ -216,6 +224,28 @@ public class PdfExportService
 
     private string Aspect(string lang, string key) =>
         AspectNames.TryGetValue(lang, out var d) && d.TryGetValue(key, out var v) ? v : key;
+
+    // Builds a localized entry title from the structured Key (e.g. "Moon_Cancer",
+    // "Sun_House3", "Moon_Trine_Jupiter"). Mirrors the frontend translateTitle logic
+    // so the PDF heading matches the on-screen heading instead of the raw English Title.
+    private string SignTitle(string lang, string key)
+    {
+        var parts = key.Split('_');
+        return $"{Planet(lang, parts[0])} {L(lang, "inSign")} {Sign(lang, parts[1])}";
+    }
+
+    private string HouseTitle(string lang, string key)
+    {
+        var parts = key.Split('_');
+        var house = parts.Length > 1 ? parts[1].Replace("House", "") : "";
+        return $"{Planet(lang, parts[0])} {L(lang, "inHouse")} {house}";
+    }
+
+    private string AspectTitle(string lang, string key)
+    {
+        var parts = key.Split('_');
+        return $"{Planet(lang, parts[0])} {Aspect(lang, parts[1])} {Planet(lang, parts[2])}";
+    }
 
     public byte[] GeneratePdf(
         BirthData birthData,
@@ -365,7 +395,7 @@ public class PdfExportService
                 col.Item().Text(L(lang, "planetsInSigns")).FontSize(13).Bold().FontColor(Colors.Purple.Medium);
                 foreach (var entry in interpretations.PlanetInSign)
                 {
-                    col.Item().PaddingTop(5).Text(entry.Title).Bold().FontSize(10);
+                    col.Item().PaddingTop(5).Text(SignTitle(lang, entry.Key)).Bold().FontSize(10);
                     col.Item().Text(entry.Text).FontSize(9).FontColor(Colors.Grey.Darken2);
                 }
                 col.Item().PaddingTop(10);
@@ -377,7 +407,7 @@ public class PdfExportService
                 col.Item().Text(L(lang, "planetsInHouses")).FontSize(13).Bold().FontColor(Colors.Purple.Medium);
                 foreach (var entry in interpretations.PlanetInHouse)
                 {
-                    col.Item().PaddingTop(5).Text(entry.Title).Bold().FontSize(10);
+                    col.Item().PaddingTop(5).Text(HouseTitle(lang, entry.Key)).Bold().FontSize(10);
                     col.Item().Text(entry.Text).FontSize(9).FontColor(Colors.Grey.Darken2);
                 }
                 col.Item().PaddingTop(10);
@@ -389,7 +419,7 @@ public class PdfExportService
                 col.Item().Text(L(lang, "aspects")).FontSize(13).Bold().FontColor(Colors.Purple.Medium);
                 foreach (var entry in interpretations.Aspects)
                 {
-                    col.Item().PaddingTop(5).Text(entry.Title).Bold().FontSize(10);
+                    col.Item().PaddingTop(5).Text(AspectTitle(lang, entry.Key)).Bold().FontSize(10);
                     col.Item().Text(entry.Text).FontSize(9).FontColor(Colors.Grey.Darken2);
                 }
                 col.Item().PaddingTop(10);
