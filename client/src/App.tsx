@@ -38,6 +38,9 @@ function NavButton({ to, children }: { to: string; children: React.ReactNode }) 
           textTransform: 'none',
           color: isActive ? '#a855f7' : '#9ca3af',
           fontWeight: isActive ? 700 : 400,
+          minWidth: 0,
+          px: { xs: 0.75, sm: 1 },
+          fontSize: { xs: '0.8rem', sm: '0.875rem' },
         }}>
           {children}
         </Button>
@@ -52,11 +55,19 @@ function AppContent() {
   return (
     <BrowserRouter>
       <AppBar position="static" sx={{ background: 'rgba(10,5,32,0.9)', backdropFilter: 'blur(10px)' }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ fontWeight: 800, mr: 4, color: '#a855f7' }}>
+        <Toolbar sx={{ flexWrap: 'wrap', rowGap: 1, columnGap: 1, px: { xs: 1.5, sm: 3 } }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, mr: { xs: 0, sm: 4 }, color: '#a855f7', fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
             NatalChart
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, flexGrow: 1 }}>
+          <Box sx={{
+            display: 'flex',
+            gap: { xs: 0.5, sm: 2 },
+            flexGrow: 1,
+            flexWrap: 'wrap',
+            order: { xs: 3, sm: 0 },
+            flexBasis: { xs: '100%', sm: 'auto' },
+            justifyContent: { xs: 'center', sm: 'flex-start' },
+          }}>
             <NavButton to="/">{t.natalChart}</NavButton>
             <NavButton to="/synastry">{t.synastry}</NavButton>
             <NavButton to="/transits">{t.transits}</NavButton>
@@ -67,10 +78,11 @@ function AppContent() {
             onChange={(_, v) => v && setLang(v as Lang)}
             size="small"
             sx={{
+              ml: { xs: 'auto', sm: 0 },
               '& .MuiToggleButton-root': {
                 color: '#9ca3af',
                 borderColor: 'rgba(255,255,255,0.15)',
-                px: 1.5,
+                px: { xs: 1, sm: 1.5 },
                 py: 0.3,
                 fontSize: '0.8rem',
                 '&.Mui-selected': {
