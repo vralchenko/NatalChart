@@ -80,6 +80,39 @@ public class PdfExportService
         },
     };
 
+    // Sign names in the locative case, including the preposition, for "planet in sign" titles
+    // (e.g. "Місяць у Раку" instead of the nominative "Місяць у Рак"). Storing the full phrase
+    // handles the у/в euphony and irregulars like "во Льве". Only inflected languages need this.
+    private static readonly Dictionary<string, Dictionary<string, string>> SignLocative = new()
+    {
+        ["uk"] = new() {
+            ["Aries"] = "в Овні", ["Taurus"] = "у Тельці", ["Gemini"] = "у Близнюках", ["Cancer"] = "у Раку",
+            ["Leo"] = "у Леві", ["Virgo"] = "у Діві", ["Libra"] = "у Терезах", ["Scorpio"] = "у Скорпіоні",
+            ["Sagittarius"] = "у Стрільці", ["Capricorn"] = "у Козерозі", ["Aquarius"] = "у Водолії", ["Pisces"] = "у Рибах",
+        },
+        ["ru"] = new() {
+            ["Aries"] = "в Овне", ["Taurus"] = "в Тельце", ["Gemini"] = "в Близнецах", ["Cancer"] = "в Раке",
+            ["Leo"] = "во Льве", ["Virgo"] = "в Деве", ["Libra"] = "в Весах", ["Scorpio"] = "в Скорпионе",
+            ["Sagittarius"] = "в Стрельце", ["Capricorn"] = "в Козероге", ["Aquarius"] = "в Водолее", ["Pisces"] = "в Рыбах",
+        },
+    };
+
+    // Planet names in the genitive case, for aspect titles ("Тригон Місяця і Юпітера").
+    // Matches the wording already used in the interpretation body text. Inflected languages only.
+    private static readonly Dictionary<string, Dictionary<string, string>> PlanetGenitive = new()
+    {
+        ["uk"] = new() {
+            ["Sun"] = "Сонця", ["Moon"] = "Місяця", ["Mercury"] = "Меркурія", ["Venus"] = "Венери",
+            ["Mars"] = "Марса", ["Jupiter"] = "Юпітера", ["Saturn"] = "Сатурна", ["Uranus"] = "Урана",
+            ["Neptune"] = "Нептуна", ["Pluto"] = "Плутона", ["NorthNode"] = "Пн. Вузла", ["Chiron"] = "Хірона",
+        },
+        ["ru"] = new() {
+            ["Sun"] = "Солнца", ["Moon"] = "Луны", ["Mercury"] = "Меркурия", ["Venus"] = "Венеры",
+            ["Mars"] = "Марса", ["Jupiter"] = "Юпитера", ["Saturn"] = "Сатурна", ["Uranus"] = "Урана",
+            ["Neptune"] = "Нептуна", ["Pluto"] = "Плутона", ["NorthNode"] = "Сев. Узла", ["Chiron"] = "Хирона",
+        },
+    };
+
     private static readonly Dictionary<string, Dictionary<string, string>> Labels = new()
     {
         ["en"] = new() {
@@ -225,12 +258,18 @@ public class PdfExportService
     private string Aspect(string lang, string key) =>
         AspectNames.TryGetValue(lang, out var d) && d.TryGetValue(key, out var v) ? v : key;
 
+    private string PlanetGen(string lang, string key) =>
+        PlanetGenitive.TryGetValue(lang, out var d) && d.TryGetValue(key, out var v) ? v : Planet(lang, key);
+
     // Builds a localized entry title from the structured Key (e.g. "Moon_Cancer",
     // "Sun_House3", "Moon_Trine_Jupiter"). Mirrors the frontend translateTitle logic
     // so the PDF heading matches the on-screen heading instead of the raw English Title.
+    // For inflected languages (uk, ru) it uses grammatical cases; en/de keep the connector form.
     private string SignTitle(string lang, string key)
     {
         var parts = key.Split('_');
+        if (SignLocative.TryGetValue(lang, out var loc) && loc.TryGetValue(parts[1], out var phrase))
+            return $"{Planet(lang, parts[0])} {phrase}";
         return $"{Planet(lang, parts[0])} {L(lang, "inSign")} {Sign(lang, parts[1])}";
     }
 
@@ -238,12 +277,22 @@ public class PdfExportService
     {
         var parts = key.Split('_');
         var house = parts.Length > 1 ? parts[1].Replace("House", "") : "";
-        return $"{Planet(lang, parts[0])} {L(lang, "inHouse")} {house}";
+        return lang switch
+        {
+            "uk" => $"{Planet(lang, parts[0])} у {house}-му домі",
+            "ru" => $"{Planet(lang, parts[0])} в {house}-м доме",
+            _ => $"{Planet(lang, parts[0])} {L(lang, "inHouse")} {house}",
+        };
     }
 
     private string AspectTitle(string lang, string key)
     {
         var parts = key.Split('_');
+        if (PlanetGenitive.ContainsKey(lang))
+        {
+            var conj = lang == "uk" ? "і" : "и";
+            return $"{Aspect(lang, parts[1])} {PlanetGen(lang, parts[0])} {conj} {PlanetGen(lang, parts[2])}";
+        }
         return $"{Planet(lang, parts[0])} {Aspect(lang, parts[1])} {Planet(lang, parts[2])}";
     }
 

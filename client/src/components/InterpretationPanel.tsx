@@ -3,7 +3,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useLang } from '../context/LangContext';
-import { getPlanetName, getSignName, getAspectName, signTraits, elementDescriptions } from '../i18n';
+import { getPlanetName, getSignName, getAspectName, getSignLocative, getPlanetGenitive, signTraits, elementDescriptions } from '../i18n';
 import type { Lang } from '../i18n';
 import type { InterpretationResult, InterpretationEntry, NatalChartResult } from '../types/chart';
 
@@ -38,20 +38,27 @@ function translateTitle(entry: InterpretationEntry, lang: Lang, inSign: string, 
 
   if (parts.length === 3 && parts[1] === 'in') {
     const planet = getPlanetName(lang, parts[0]);
-    const sign = getSignName(lang, parts[2]);
-    return `${planet} ${inSign} ${sign}`;
+    // Inflected languages (uk, ru) use the locative case ("Місяць у Раку")
+    const locative = getSignLocative(lang, parts[2]);
+    if (locative) return `${planet} ${locative}`;
+    return `${planet} ${inSign} ${getSignName(lang, parts[2])}`;
   }
 
   if (parts.length === 4 && parts[1] === 'in' && parts[2] === 'House') {
     const planet = getPlanetName(lang, parts[0]);
+    if (lang === 'uk') return `${planet} у ${parts[3]}-му домі`;
+    if (lang === 'ru') return `${planet} в ${parts[3]}-м доме`;
     return `${planet} ${inHouse} ${parts[3]}`;
   }
 
   if (parts.length === 3) {
-    const p1 = getPlanetName(lang, parts[0]);
     const aspect = getAspectName(lang, parts[1]);
-    const p2 = getPlanetName(lang, parts[2]);
-    return `${p1} — ${aspect} — ${p2}`;
+    // Inflected languages mirror the body text: "Тригон Місяця і Юпітера"
+    if (lang === 'uk' || lang === 'ru') {
+      const conj = lang === 'uk' ? 'і' : 'и';
+      return `${aspect} ${getPlanetGenitive(lang, parts[0])} ${conj} ${getPlanetGenitive(lang, parts[2])}`;
+    }
+    return `${getPlanetName(lang, parts[0])} — ${aspect} — ${getPlanetName(lang, parts[2])}`;
   }
 
   return entry.title;

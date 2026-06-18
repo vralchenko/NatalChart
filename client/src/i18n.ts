@@ -69,6 +69,36 @@ const aspectNames: Record<Lang, Record<string, string>> = {
   },
 };
 
+// Sign names in the locative case incl. preposition, for "planet in sign" titles
+// ("Місяць у Раку" instead of nominative "Місяць у Рак"). Inflected languages only.
+const signLocative: Partial<Record<Lang, Record<string, string>>> = {
+  uk: {
+    Aries: 'в Овні', Taurus: 'у Тельці', Gemini: 'у Близнюках', Cancer: 'у Раку',
+    Leo: 'у Леві', Virgo: 'у Діві', Libra: 'у Терезах', Scorpio: 'у Скорпіоні',
+    Sagittarius: 'у Стрільці', Capricorn: 'у Козерозі', Aquarius: 'у Водолії', Pisces: 'у Рибах',
+  },
+  ru: {
+    Aries: 'в Овне', Taurus: 'в Тельце', Gemini: 'в Близнецах', Cancer: 'в Раке',
+    Leo: 'во Льве', Virgo: 'в Деве', Libra: 'в Весах', Scorpio: 'в Скорпионе',
+    Sagittarius: 'в Стрельце', Capricorn: 'в Козероге', Aquarius: 'в Водолее', Pisces: 'в Рыбах',
+  },
+};
+
+// Planet names in the genitive case, for aspect titles ("Тригон Місяця і Юпітера").
+// Matches the interpretation body text wording. Inflected languages only.
+const planetGenitive: Partial<Record<Lang, Record<string, string>>> = {
+  uk: {
+    Sun: 'Сонця', Moon: 'Місяця', Mercury: 'Меркурія', Venus: 'Венери',
+    Mars: 'Марса', Jupiter: 'Юпітера', Saturn: 'Сатурна', Uranus: 'Урана',
+    Neptune: 'Нептуна', Pluto: 'Плутона', NorthNode: 'Пн. Вузла', Chiron: 'Хірона',
+  },
+  ru: {
+    Sun: 'Солнца', Moon: 'Луны', Mercury: 'Меркурия', Venus: 'Венеры',
+    Mars: 'Марса', Jupiter: 'Юпитера', Saturn: 'Сатурна', Uranus: 'Урана',
+    Neptune: 'Нептуна', Pluto: 'Плутона', NorthNode: 'Сев. Узла', Chiron: 'Хирона',
+  },
+};
+
 export const signTraits: Record<Lang, Record<string, string>> = {
   en: {
     Aries: 'Bold pioneer who leads with courage and initiates action',
@@ -158,6 +188,8 @@ export const elementDescriptions: Record<Lang, Record<string, string>> = {
 export const getPlanetName = (lang: Lang, key: string) => planetNames[lang]?.[key] || planetNames.en[key] || key;
 export const getSignName = (lang: Lang, key: string) => signNames[lang]?.[key] || signNames.en[key] || key;
 export const getAspectName = (lang: Lang, key: string) => aspectNames[lang]?.[key] || aspectNames.en[key] || key;
+export const getSignLocative = (lang: Lang, key: string) => signLocative[lang]?.[key];
+export const getPlanetGenitive = (lang: Lang, key: string) => planetGenitive[lang]?.[key] || getPlanetName(lang, key);
 
 export const translations = {
   en: {
